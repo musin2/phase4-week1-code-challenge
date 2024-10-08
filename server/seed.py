@@ -3,6 +3,8 @@ from random import choice as rc
 from app import app
 from models import db, Hero, Power, HeroPower
 
+from sqlalchemy.orm.session import Session
+
 if __name__ == '__main__':
     with app.app_context():
         print("Clearing db...")
@@ -17,6 +19,12 @@ if __name__ == '__main__':
             Power(name="super human senses", description="allows the wielder to use her senses at a super-human level"),
             Power(name="elasticity", description="can stretch the human body to extreme lengths"),
         ]
+        for power in powers:
+            print(f"Adding Power: {power.name} with description: {power.description}")
+
+        # if isinstance(db.session, Session):
+        #     print("Session state before commit:", db.session.new)
+        #     print("Session state before commit (pending):", db.session.dirty)
 
         db.session.add_all(powers)
 
@@ -46,5 +54,12 @@ if __name__ == '__main__':
             )
         db.session.add_all(hero_powers)
         db.session.commit()
+
+        # try:
+        #     db.session.flush()  # attempt to write to the DB
+        #     db.session.commit()  # Finalize the transaction
+        # except Exception as e:
+        #     print(f"Error committing data: {e}")
+        #     db.session.rollback()
 
         print("Done seeding!")
