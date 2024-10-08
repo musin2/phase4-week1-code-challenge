@@ -53,7 +53,8 @@ def get_powers():
 
 @app.route("/powers/<int:id>", methods=["GET", "PATCH"])
 def retreive_power(id):
-    power = Power.query.filter_by(id=id).first()
+    # power = Power.query.filter_by(id=id).first()
+    power = Power.query.get(id)
 
     if not power:
         response_body = {"error": "Power not found"}
@@ -66,9 +67,13 @@ def retreive_power(id):
     elif request.method == "PATCH":
         #validation
         description = request.form.get("description")       #get description from form data
-        if description:
-            if not isinstance(description,str) or len(description) < 20:
-                return make_response({"error": "Description must be at least 20 characters long"}, 400)
+
+        # if description:
+        #     if not isinstance(description,str) or len(description) < 20:
+        #         return make_response({"error": "Description must be at least 20 characters long"}, 400)
+        if description is None or not isinstance(description, str) or len(description) < 20:
+            return make_response({"errors": ["validation errors"]}, 400)
+
         
         for attr in request.form:
             setattr(power, attr, request.form.get(attr))
@@ -88,7 +93,7 @@ def add_hero_powers():
     #Validate 'strong' input from form
     strength = data.get('strength')
     if strength not in ['Strong','Weak','Average']:
-        response_body = {"message": "`strength` must be one of the following values: 'Strong', 'Weak', 'Average'"}
+        response_body = {"errors": ["validation errors"]}
         return make_response(response_body,400)
     
     #new Hero_Power instance
@@ -98,7 +103,7 @@ def add_hero_powers():
     if new_h_p:
         db.session.add(new_h_p)
         db.session.commit()
-        return make_response(new_h_p,200)
+        return make_response(new_h_p.to_dict(),200)
     elif not new_h_p:
         response_body = {"errors": ["validation errors"]}
         return make_response(response_body,400)
