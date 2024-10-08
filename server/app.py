@@ -66,17 +66,15 @@ def retreive_power(id):
 
     elif request.method == "PATCH":
         #validation
-        description = request.form.get("description")       #get description from form data
+        data = request.json
+        description = data.get('description')
 
-        # if description:
-        #     if not isinstance(description,str) or len(description) < 20:
-        #         return make_response({"error": "Description must be at least 20 characters long"}, 400)
         if description is None or not isinstance(description, str) or len(description) < 20:
             return make_response({"errors": ["validation errors"]}, 400)
 
-        
-        for attr in request.form:
-            setattr(power, attr, request.form.get(attr))
+        for attr in data:
+            setattr(power, attr, data.get(attr))
+
         db.session.commit()
         response_body = power.to_dict(only=('description','id','name'))
         return make_response(response_body,200)
